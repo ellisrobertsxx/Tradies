@@ -87,28 +87,37 @@
         opacity: 0;
       }
     }
+    .hidden {
+      display: none; /* Hide elements */
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Earnings Tracker</h1>
-    <label for="firstName">First Name:</label>
-    <input type="text" id="firstName" placeholder="Enter your first name">
-    
-    <label for="lastName">Last Name:</label>
-    <input type="text" id="lastName" placeholder="Enter your last name">
-    
-    <label for="hourlyRate">Hourly Rate ($):</label>
-    <input type="number" id="hourlyRate" placeholder="Enter your hourly rate">
-    
-    <button onclick="startTracking()">Start Tracking</button>
-    
-    <!-- Half Circle with Balance -->
-    <div class="half-circle">
-      <div class="balance" id="balance">$0.00</div>
+    <!-- Input Section -->
+    <div id="inputSection">
+      <h1>Earnings Tracker</h1>
+      <label for="firstName">First Name:</label>
+      <input type="text" id="firstName" placeholder="Enter your first name">
+      
+      <label for="lastName">Last Name:</label>
+      <input type="text" id="lastName" placeholder="Enter your last name">
+      
+      <label for="hourlyRate">Hourly Rate ($):</label>
+      <input type="number" id="hourlyRate" placeholder="Enter your hourly rate">
+      
+      <button onclick="startTracking()">Start Tracking</button>
     </div>
-    
-    <div class="weekly-earnings" id="weeklyEarnings">Weekly Earnings: $0.00</div>
+
+    <!-- Earnings Display Section -->
+    <div id="earningsSection" class="hidden">
+      <!-- Half Circle with Balance -->
+      <div class="half-circle">
+        <div class="balance" id="balance">$0.00</div>
+      </div>
+      
+      <div class="weekly-earnings" id="weeklyEarnings">Weekly Earnings: $0.00</div>
+    </div>
   </div>
 
   <script>
@@ -127,6 +136,10 @@
         alert('Please fill in all fields correctly.');
         return;
       }
+
+      // Hide input section and show earnings section
+      document.getElementById('inputSection').classList.add('hidden');
+      document.getElementById('earningsSection').classList.remove('hidden');
 
       clearInterval(interval); // Clear any existing interval
 
