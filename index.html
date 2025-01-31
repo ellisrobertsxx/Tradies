@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Earnings Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .earnings {
+      margin-top: 20px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .weekly-earnings {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #555;
+    }
+    .pot-of-gold {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin: 20px auto;
+      background-color: #ffd700;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 5px solid #daa520; /* Gold border for the pot */
+    }
+    .coin {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(45deg, #8b4513, #a0522d); /* Brown gradient for the coin */
+      border-radius: 50%;
+      animation: drop 1s ease-in-out;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Add shadow for better visibility */
+    }
+    @keyframes drop {
+      0% {
+        top: -20px;
+        opacity: 1;
+      }
+      100% {
+        top: 100%;
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Earnings Tracker</h1>
+    <label for="firstName">First Name:</label>
+    <input type="text" id="firstName" placeholder="Enter your first name">
+    
+    <label for="lastName">Last Name:</label>
+    <input type="text" id="lastName" placeholder="Enter your last name">
+    
+    <label for="hourlyRate">Hourly Rate ($):</label>
+    <input type="number" id="hourlyRate" placeholder="Enter your hourly rate">
+    
+    <button onclick="startTracking()">Start Tracking</button>
+    
+    <div class="earnings" id="earnings">$0.00</div>
+    <div class="weekly-earnings" id="weeklyEarnings">Weekly Earnings: $0.00</div>
+    
+    <!-- Pot of Gold -->
+    <div class="pot-of-gold" id="potOfGold"></div>
+  </div>
+
+  <script>
+    let interval;
+    let totalEarnings = 0;
+    let weeklyEarnings = 0;
+    let startTime;
+    let previousEarnings = 0;
+
+    function startTracking() {
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+      const hourlyRate = parseFloat(document.getElementById('hourlyRate').value);
+
+      if (!firstName || !lastName || isNaN(hourlyRate)) {
+        alert('Please fill in all fields correctly.');
+        return;
+      }
+
+      clearInterval(interval); // Clear any existing interval
+
+      startTime = new Date();
+      totalEarnings = 0;
+      weeklyEarnings = 0;
+      previousEarnings = 0;
+
+      interval = setInterval(() => {
+        const now = new Date();
+        const minutesWorked = (now - startTime) / (1000 * 60);
+        totalEarnings = (hourlyRate / 60) * minutesWorked;
+        document.getElementById('earnings').textContent = `$${totalEarnings.toFixed(2)}`;
+
+        // Calculate weekly earnings (assuming 5 working days)
+        const daysWorked = Math.floor(minutesWorked / (8 * 60)); // 8 hours per day
+        weeklyEarnings = daysWorked * hourlyRate * 8 + totalEarnings;
+        document.getElementById('weeklyEarnings').textContent = `Weekly Earnings: $${weeklyEarnings.toFixed(2)}`;
+
+        // Add a coin animation only if earnings have increased
+        if (totalEarnings > previousEarnings) {
+          addCoin();
+          previousEarnings = totalEarnings; // Update previous earnings
+        }
+      }, 1000); // Update every second
+    }
+
+    function addCoin() {
+      const potOfGold = document.getElementById('potOfGold');
+      const coin = document.createElement('div');
+      coin.classList.add('coin');
+      coin.style.left = `${Math.random() * 130}px`; // Random horizontal position
+      potOfGold.appendChild(coin);
+
+      // Remove the coin after the animation ends
+      setTimeout(() => {
+        coin.remove();
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
