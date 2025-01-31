@@ -13,9 +13,13 @@
       align-items: center;
       height: 100vh;
       margin: 0;
+      overflow: hidden; /* Prevent scrolling */
     }
     .container {
       text-align: center;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
     }
     h1 {
       margin-bottom: 20px;
@@ -63,7 +67,7 @@
       color: #333;
       z-index: 1; /* Ensure text is above the half-circle */
     }
-    .weekly-earnings {
+    .earnings-label {
       margin-top: 10px;
       font-size: 18px;
       color: #555;
@@ -90,6 +94,15 @@
     .hidden {
       display: none; /* Hide elements */
     }
+    .swipe-container {
+      display: flex;
+      width: 300%; /* Triple width for three screens */
+      transition: transform 0.3s ease-in-out;
+    }
+    .screen {
+      width: 100%; /* Each screen takes full width */
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -111,12 +124,31 @@
 
     <!-- Earnings Display Section -->
     <div id="earningsSection" class="hidden">
-      <!-- Half Circle with Balance -->
-      <div class="half-circle">
-        <div class="balance" id="balance">$0.00</div>
+      <div class="swipe-container" id="swipeContainer">
+        <!-- Today's Earnings Screen -->
+        <div class="screen" id="todayScreen">
+          <div class="half-circle">
+            <div class="balance" id="todayBalance">$0.00</div>
+          </div>
+          <div class="earnings-label">Today's Earnings</div>
+        </div>
+
+        <!-- Weekly Earnings Screen -->
+        <div class="screen" id="weeklyScreen">
+          <div class="half-circle">
+            <div class="balance" id="weeklyBalance">$0.00</div>
+          </div>
+          <div class="earnings-label">Weekly Earnings</div>
+        </div>
+
+        <!-- Yearly Earnings Screen -->
+        <div class="screen" id="yearlyScreen">
+          <div class="half-circle">
+            <div class="balance" id="yearlyBalance">$0.00</div>
+          </div>
+          <div class="earnings-label">Yearly Earnings</div>
+        </div>
       </div>
-      
-      <div class="weekly-earnings" id="weeklyEarnings">Weekly Earnings: $0.00</div>
     </div>
   </div>
 
@@ -124,8 +156,52 @@
     let interval;
     let totalEarnings = 0;
     let weeklyEarnings = 0;
+    let yearlyEarnings = 0;
     let startTime;
     let previousEarnings = 0;
+    let currentScreenIndex = 0; // 0: Today, 1: Weekly, 2: Yearly
+
+    // Swipe functionality
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const swipeContainer = document.getElementById('swipeContainer');
+
+    swipeContainer.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+
+    swipeContainer.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].clientX;
+      handleSwipe();
+    });
+
+    swipeContainer.addEventListener('mousedown', (e) => {
+      touchStartX = e.clientX;
+      document.addEventListener('mouseup', handleMouseUp);
+    });
+
+    function handleMouseUp(e) {
+      touchEndX = e.clientX;
+      handleSwipe();
+      document.removeEventListener('mouseup', handleMouseUp);
+    }
+
+    function handleSwipe() {
+      const swipeDistance = touchEndX - touchStartX;
+      if (swipeDistance > 50 && currentScreenIndex > 0) {
+        // Swipe right
+        currentScreenIndex--;
+      } else if (swipeDistance < -50 && currentScreenIndex < 2) {
+        // Swipe left
+        currentScreenIndex++;
+      }
+      updateScreen();
+    }
+
+    function updateScreen() {
+      const offset = -currentScreenIndex * 100;
+      swipeContainer.style.transform = `translateX(${offset}%)`;
+    }
 
     function startTracking() {
       const firstName = document.getElementById('firstName').value;
@@ -146,18 +222,24 @@
       startTime = new Date();
       totalEarnings = 0;
       weeklyEarnings = 0;
+      yearlyEarnings = 0;
       previousEarnings = 0;
 
       interval = setInterval(() => {
         const now = new Date();
         const minutesWorked = (now - startTime) / (1000 * 60);
         totalEarnings = (hourlyRate / 60) * minutesWorked;
-        document.getElementById('balance').textContent = `$${totalEarnings.toFixed(2)}`;
+        document.getElementById('todayBalance').textContent = `$${totalEarnings.toFixed(2)}`;
 
         // Calculate weekly earnings (assuming 5 working days)
         const daysWorked = Math.floor(minutesWorked / (8 * 60)); // 8 hours per day
         weeklyEarnings = daysWorked * hourlyRate * 8 + totalEarnings;
-        document.getElementById('weeklyEarnings').textContent = `Weekly Earnings: $${weeklyEarnings.toFixed(2)}`;
+        document.getElementById('weeklyBalance').textContent = `$${weeklyEarnings.toFixed(2)}`;
+
+        // Calculate yearly earnings (assuming 50 working weeks)
+        const weeksWorked = daysWorked / 5; // 5 days per week
+        yearlyEarnings = weeksWorked * hourlyRate * 40; // 40 hours per week
+        document.getElementById('yearlyBalance').textContent = `$${yearlyEarnings.toFixed(2)}`;
 
         // Add a coin animation only if earnings have increased
         if (totalEarnings > previousEarnings) {
