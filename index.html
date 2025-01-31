@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #fff;
+      background-color: #f4f4f4;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -15,18 +15,16 @@
       margin: 0;
     }
     .container {
-      background-color: #E7CE79;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
     h1 {
       margin-bottom: 20px;
+      color: #333;
     }
     label {
       display: block;
       margin-bottom: 10px;
+      color: #555;
     }
     input {
       width: 100%;
@@ -46,25 +44,29 @@
     button:hover {
       background-color: #218838;
     }
-    .earnings {
-      margin-top: 20px;
-      font-size: 24px;
+    .half-circle {
+      position: relative;
+      width: 300px;
+      height: 150px; /* Half of the width */
+      margin: 20px auto;
+      background-color: #ffd700;
+      border-radius: 150px 150px 0 0; /* Creates a half-circle */
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 5px solid #daa520; /* Gold border */
+    }
+    .balance {
+      font-size: 32px;
       font-weight: bold;
+      color: #333;
+      z-index: 1; /* Ensure text is above the half-circle */
     }
     .weekly-earnings {
       margin-top: 10px;
       font-size: 18px;
       color: #555;
-    }
-    .pot-of-gold {
-      position: relative;
-      width: 150px;
-      height: 150px;
-      margin: 20px auto;
-      background-color: #ffd700;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 5px solid #daa520; /* Gold border for the pot */
     }
     .coin {
       position: absolute;
@@ -101,11 +103,12 @@
     
     <button onclick="startTracking()">Start Tracking</button>
     
-    <div class="earnings" id="earnings">$0.00</div>
-    <div class="weekly-earnings" id="weeklyEarnings">Weekly Earnings: $0.00</div>
+    <!-- Half Circle with Balance -->
+    <div class="half-circle">
+      <div class="balance" id="balance">$0.00</div>
+    </div>
     
-    <!-- Pot of Gold -->
-    <div class="pot-of-gold" id="potOfGold"></div>
+    <div class="weekly-earnings" id="weeklyEarnings">Weekly Earnings: $0.00</div>
   </div>
 
   <script>
@@ -136,7 +139,7 @@
         const now = new Date();
         const minutesWorked = (now - startTime) / (1000 * 60);
         totalEarnings = (hourlyRate / 60) * minutesWorked;
-        document.getElementById('earnings').textContent = `$${totalEarnings.toFixed(2)}`;
+        document.getElementById('balance').textContent = `$${totalEarnings.toFixed(2)}`;
 
         // Calculate weekly earnings (assuming 5 working days)
         const daysWorked = Math.floor(minutesWorked / (8 * 60)); // 8 hours per day
@@ -152,11 +155,11 @@
     }
 
     function addCoin() {
-      const potOfGold = document.getElementById('potOfGold');
+      const halfCircle = document.querySelector('.half-circle');
       const coin = document.createElement('div');
       coin.classList.add('coin');
-      coin.style.left = `${Math.random() * 130}px`; // Random horizontal position
-      potOfGold.appendChild(coin);
+      coin.style.left = `${Math.random() * 280}px`; // Random horizontal position
+      halfCircle.appendChild(coin);
 
       // Remove the coin after the animation ends
       setTimeout(() => {
