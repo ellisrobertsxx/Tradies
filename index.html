@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Earnings Tracker</title>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 24px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Earnings Display Section */
+    #earningsSection {
+      width: 100%;
+      text-align: center;
+    }
+
+    .half-circle {
+      width: 200px;
+      height: 100px;
+      background-color: #ffd700;
+      border-radius: 100px 100px 0 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 5px solid #daa520;
+      margin: 0 auto 20px;
+    }
+
+    .balance {
+      font-size: 32px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .earnings-label {
+      font-size: 18px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Input Section -->
+    <div id="inputSection">
+      <h1>Earnings Tracker</h1>
+      <label for="firstName">First Name:</label>
+      <input type="text" id="firstName" placeholder="Enter your first name">
+      
+      <label for="lastName">Last Name:</label>
+      <input type="text" id="lastName" placeholder="Enter your last name">
+      
+      <label for="hourlyRate">Hourly Rate ($):</label>
+      <input type="number" id="hourlyRate" placeholder="Enter your hourly rate">
+      
+      <button onclick="startTracking()">Start Tracking</button>
+    </div>
+
+    <!-- Earnings Display Section -->
+    <div id="earningsSection" class="hidden">
+      <!-- Weekly Earnings Screen -->
+      <div id="weeklyScreen">
+        <div class="half-circle">
+          <div class="balance" id="weeklyBalance">$0.00</div>
+        </div>
+        <div class="earnings-label">Weekly Earnings</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let interval;
+    let totalEarnings = 0;
+    let weeklyEarnings = 0;
+    let startTime;
+
+    // Swipe functionality
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+
+    document.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].clientX;
+      handleSwipe();
+    });
+
+    function handleSwipe() {
+      const swipeDistance = touchEndX - touchStartX;
+      if (swipeDistance < -50) {
+        // Swipe left - Load Hourly Earnings page
+        window.location.href = 'hourly.html';
+      }
+    }
+
+    function startTracking() {
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+      const hourlyRate = parseFloat(document.getElementById('hourlyRate').value);
+
+      if (!firstName || !lastName || isNaN(hourlyRate)) {
+        alert('Please fill in all fields correctly.');
+        return;
+      }
+
+      // Hide input section and show earnings section
+      document.getElementById('inputSection').classList.add('hidden');
+      document.getElementById('earningsSection').classList.remove('hidden');
+
+      clearInterval(interval); // Clear any existing interval
+
+      startTime = new Date();
+      totalEarnings = 0;
+      weeklyEarnings = 0;
+
+      interval = setInterval(() => {
+        const now = new Date();
+        const minutesWorked = (now - startTime) / (1000 * 60);
+        totalEarnings = (hourlyRate / 60) * minutesWorked;
+
+        // Calculate weekly earnings (assuming 5 working days)
+        const daysWorked = Math.floor(minutesWorked / (8 * 60)); // 8 hours per day
+        weeklyEarnings = daysWorked * hourlyRate * 8 + totalEarnings;
+
+        // Update balances
+        document.getElementById('weeklyBalance').textContent = `$${weeklyEarnings.toFixed(2)}`;
+      }, 1000); // Update every second
+    }
+  </script>
+</body>
+</html>
