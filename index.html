@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Earnings Tracker</title>
   <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
@@ -13,94 +20,90 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      overflow: hidden; /* Prevent scrolling */
     }
+
     .container {
       text-align: center;
       width: 100%;
       max-width: 400px;
-      position: relative;
+      padding: 20px;
     }
+
     h1 {
       margin-bottom: 20px;
       color: #333;
     }
+
     label {
       display: block;
       margin-bottom: 10px;
       color: #555;
     }
+
     input {
       width: 100%;
       padding: 10px;
       margin-bottom: 20px;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 8px;
+      font-size: 16px;
     }
+
     button {
-      padding: 10px 20px;
+      padding: 12px 24px;
       background-color: #28a745;
       color: #fff;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #218838;
     }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Earnings Display Section */
+    #earningsSection {
+      width: 100%;
+      text-align: center;
+    }
+
     .half-circle {
-      position: relative;
-      width: 300px;
-      height: 150px; /* Half of the width */
-      margin: 20px auto;
+      width: 200px;
+      height: 100px;
       background-color: #ffd700;
-      border-radius: 150px 150px 0 0; /* Creates a half-circle */
-      overflow: hidden;
+      border-radius: 100px 100px 0 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      border: 5px solid #daa520; /* Gold border */
+      border: 5px solid #daa520;
+      margin: 0 auto 20px;
     }
+
     .balance {
       font-size: 32px;
       font-weight: bold;
       color: #333;
-      z-index: 1; /* Ensure text is above the half-circle */
     }
+
     .earnings-label {
-      margin-top: 10px;
       font-size: 18px;
       color: #555;
     }
-    .coin {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: linear-gradient(45deg, #8b4513, #a0522d); /* Brown gradient for the coin */
-      border-radius: 50%;
-      animation: drop 1s ease-in-out;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Add shadow for better visibility */
-    }
-    @keyframes drop {
-      0% {
-        top: -20px;
-        opacity: 1;
-      }
-      100% {
-        top: 100%;
-        opacity: 0;
-      }
-    }
-    .hidden {
-      display: none; /* Hide elements */
-    }
+
     .swipe-container {
       display: flex;
-      width: 300%; /* Triple width for three screens */
+      width: 200%; /* Double width for two screens */
       transition: transform 0.3s ease-in-out;
     }
+
     .screen {
-      width: 100%; /* Each screen takes full width */
+      width: 100%;
       flex-shrink: 0;
     }
   </style>
@@ -125,14 +128,6 @@
     <!-- Earnings Display Section -->
     <div id="earningsSection" class="hidden">
       <div class="swipe-container" id="swipeContainer">
-        <!-- Today's Earnings Screen -->
-        <div class="screen" id="todayScreen">
-          <div class="half-circle">
-            <div class="balance" id="todayBalance">$0.00</div>
-          </div>
-          <div class="earnings-label">Today's Earnings</div>
-        </div>
-
         <!-- Weekly Earnings Screen -->
         <div class="screen" id="weeklyScreen">
           <div class="half-circle">
@@ -141,12 +136,12 @@
           <div class="earnings-label">Weekly Earnings</div>
         </div>
 
-        <!-- Yearly Earnings Screen -->
-        <div class="screen" id="yearlyScreen">
+        <!-- Hourly Earnings Screen -->
+        <div class="screen" id="hourlyScreen">
           <div class="half-circle">
-            <div class="balance" id="yearlyBalance">$0.00</div>
+            <div class="balance" id="hourlyBalance">$0.00</div>
           </div>
-          <div class="earnings-label">Yearly Earnings</div>
+          <div class="earnings-label">Hourly Earnings</div>
         </div>
       </div>
     </div>
@@ -156,10 +151,9 @@
     let interval;
     let totalEarnings = 0;
     let weeklyEarnings = 0;
-    let yearlyEarnings = 0;
+    let hourlyEarnings = 0;
     let startTime;
-    let previousEarnings = 0;
-    let currentScreenIndex = 0; // 0: Today, 1: Weekly, 2: Yearly
+    let currentScreenIndex = 0; // 0: Weekly, 1: Hourly
 
     // Swipe functionality
     let touchStartX = 0;
@@ -175,23 +169,12 @@
       handleSwipe();
     });
 
-    swipeContainer.addEventListener('mousedown', (e) => {
-      touchStartX = e.clientX;
-      document.addEventListener('mouseup', handleMouseUp);
-    });
-
-    function handleMouseUp(e) {
-      touchEndX = e.clientX;
-      handleSwipe();
-      document.removeEventListener('mouseup', handleMouseUp);
-    }
-
     function handleSwipe() {
       const swipeDistance = touchEndX - touchStartX;
       if (swipeDistance > 50 && currentScreenIndex > 0) {
         // Swipe right
         currentScreenIndex--;
-      } else if (swipeDistance < -50 && currentScreenIndex < 2) {
+      } else if (swipeDistance < -50 && currentScreenIndex < 1) {
         // Swipe left
         currentScreenIndex++;
       }
@@ -222,44 +205,24 @@
       startTime = new Date();
       totalEarnings = 0;
       weeklyEarnings = 0;
-      yearlyEarnings = 0;
-      previousEarnings = 0;
+      hourlyEarnings = 0;
 
       interval = setInterval(() => {
         const now = new Date();
         const minutesWorked = (now - startTime) / (1000 * 60);
         totalEarnings = (hourlyRate / 60) * minutesWorked;
-        document.getElementById('todayBalance').textContent = `$${totalEarnings.toFixed(2)}`;
 
         // Calculate weekly earnings (assuming 5 working days)
         const daysWorked = Math.floor(minutesWorked / (8 * 60)); // 8 hours per day
         weeklyEarnings = daysWorked * hourlyRate * 8 + totalEarnings;
+
+        // Calculate hourly earnings
+        hourlyEarnings = totalEarnings;
+
+        // Update balances
         document.getElementById('weeklyBalance').textContent = `$${weeklyEarnings.toFixed(2)}`;
-
-        // Calculate yearly earnings (assuming 50 working weeks)
-        const weeksWorked = daysWorked / 5; // 5 days per week
-        yearlyEarnings = weeksWorked * hourlyRate * 40; // 40 hours per week
-        document.getElementById('yearlyBalance').textContent = `$${yearlyEarnings.toFixed(2)}`;
-
-        // Add a coin animation only if earnings have increased
-        if (totalEarnings > previousEarnings) {
-          addCoin();
-          previousEarnings = totalEarnings; // Update previous earnings
-        }
+        document.getElementById('hourlyBalance').textContent = `$${hourlyEarnings.toFixed(2)}`;
       }, 1000); // Update every second
-    }
-
-    function addCoin() {
-      const halfCircle = document.querySelector('.half-circle');
-      const coin = document.createElement('div');
-      coin.classList.add('coin');
-      coin.style.left = `${Math.random() * 280}px`; // Random horizontal position
-      halfCircle.appendChild(coin);
-
-      // Remove the coin after the animation ends
-      setTimeout(() => {
-        coin.remove();
-      }, 1000);
     }
   </script>
 </body>
