@@ -95,17 +95,6 @@
       font-size: 18px;
       color: #555;
     }
-
-    .swipe-container {
-      display: flex;
-      width: 200%; /* Double width for two screens */
-      transition: transform 0.3s ease-in-out;
-    }
-
-    .screen {
-      width: 100%;
-      flex-shrink: 0;
-    }
   </style>
 </head>
 <body>
@@ -127,22 +116,12 @@
 
     <!-- Earnings Display Section -->
     <div id="earningsSection" class="hidden">
-      <div class="swipe-container" id="swipeContainer">
-        <!-- Weekly Earnings Screen -->
-        <div class="screen" id="weeklyScreen">
-          <div class="half-circle">
-            <div class="balance" id="weeklyBalance">$0.00</div>
-          </div>
-          <div class="earnings-label">Weekly Earnings</div>
+      <!-- Weekly Earnings Screen -->
+      <div id="weeklyScreen">
+        <div class="half-circle">
+          <div class="balance" id="weeklyBalance">$0.00</div>
         </div>
-
-        <!-- Hourly Earnings Screen -->
-        <div class="screen" id="hourlyScreen">
-          <div class="half-circle">
-            <div class="balance" id="hourlyBalance">$0.00</div>
-          </div>
-          <div class="earnings-label">Hourly Earnings</div>
-        </div>
+        <div class="earnings-label">Weekly Earnings</div>
       </div>
     </div>
   </div>
@@ -151,39 +130,27 @@
     let interval;
     let totalEarnings = 0;
     let weeklyEarnings = 0;
-    let hourlyEarnings = 0;
     let startTime;
-    let currentScreenIndex = 0; // 0: Weekly, 1: Hourly
 
     // Swipe functionality
     let touchStartX = 0;
     let touchEndX = 0;
-    const swipeContainer = document.getElementById('swipeContainer');
 
-    swipeContainer.addEventListener('touchstart', (e) => {
+    document.addEventListener('touchstart', (e) => {
       touchStartX = e.touches[0].clientX;
     });
 
-    swipeContainer.addEventListener('touchend', (e) => {
+    document.addEventListener('touchend', (e) => {
       touchEndX = e.changedTouches[0].clientX;
       handleSwipe();
     });
 
     function handleSwipe() {
       const swipeDistance = touchEndX - touchStartX;
-      if (swipeDistance > 50 && currentScreenIndex > 0) {
-        // Swipe right
-        currentScreenIndex--;
-      } else if (swipeDistance < -50 && currentScreenIndex < 1) {
-        // Swipe left
-        currentScreenIndex++;
+      if (swipeDistance < -50) {
+        // Swipe left - Load Hourly Earnings page
+        window.location.href = 'hourly.html';
       }
-      updateScreen();
-    }
-
-    function updateScreen() {
-      const offset = -currentScreenIndex * 100;
-      swipeContainer.style.transform = `translateX(${offset}%)`;
     }
 
     function startTracking() {
@@ -205,7 +172,6 @@
       startTime = new Date();
       totalEarnings = 0;
       weeklyEarnings = 0;
-      hourlyEarnings = 0;
 
       interval = setInterval(() => {
         const now = new Date();
@@ -216,12 +182,8 @@
         const daysWorked = Math.floor(minutesWorked / (8 * 60)); // 8 hours per day
         weeklyEarnings = daysWorked * hourlyRate * 8 + totalEarnings;
 
-        // Calculate hourly earnings
-        hourlyEarnings = totalEarnings;
-
         // Update balances
         document.getElementById('weeklyBalance').textContent = `$${weeklyEarnings.toFixed(2)}`;
-        document.getElementById('hourlyBalance').textContent = `$${hourlyEarnings.toFixed(2)}`;
       }, 1000); // Update every second
     }
   </script>
