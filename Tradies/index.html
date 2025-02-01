@@ -151,28 +151,44 @@
     function initializeEarningsTracking(hourlyRate) {
       document.getElementById('inputSection').classList.add('hidden');
       document.getElementById('earningsSection').classList.remove('hidden');
-  
+
       clearInterval(interval);
-  
+
+      // Initialize YTD earnings if not already set
+      if (!localStorage.getItem('ytdEarnings')) {
+        const now = new Date();
+        const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
+        localStorage.setItem('ytdEarnings', 0);
+        localStorage.setItem('ytdTimeElapsed', Date.now() - startOfYear);
+      }
+
       // Immediately show the last known earnings before updates start
       let totalEarnings = parseFloat(localStorage.getItem('totalEarnings')) || 0;
       document.getElementById('weeklyBalance').textContent = `$${totalEarnings.toFixed(2)}`;
-  
+
       let timeElapsed = parseFloat(localStorage.getItem('timeElapsed')) || 0;
       startTime = Date.now() - timeElapsed;
-  
+
       interval = setInterval(() => {
         const elapsedMinutes = (Date.now() - startTime) / (1000 * 60);
+
+        // Calculate all earnings
         totalEarnings = (hourlyRate / 60) * elapsedMinutes;
-  
+        const hourlyEarnings = totalEarnings;
+        // Update the YTD calculation in the setInterval function in index.html
+        const ytdEarnings = (hourlyRate / 60) * ((Date.now() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (1000 * 60));
+
         // Store updated earnings
         localStorage.setItem('totalEarnings', totalEarnings);
+        localStorage.setItem('hourlyEarnings', hourlyEarnings);
+        localStorage.setItem('ytdEarnings', ytdEarnings);
         localStorage.setItem('timeElapsed', Date.now() - startTime);
-  
+
+        // Update the UI on the current page
         document.getElementById('weeklyBalance').textContent = `$${totalEarnings.toFixed(2)}`;
       }, 1000);
     }
-  
+
     document.addEventListener('DOMContentLoaded', () => {
       const savedFirstName = localStorage.getItem('firstName');
       const savedLastName = localStorage.getItem('lastName');
@@ -182,6 +198,14 @@
         document.getElementById('inputSection').classList.add('hidden');
         document.getElementById('earningsSection').classList.remove('hidden');
         initializeEarningsTracking(parseFloat(savedHourlyRate));
+
+        // Initialize YTD earnings if not already set
+        if (!localStorage.getItem('ytdEarnings')) {
+          const now = new Date();
+          const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
+          localStorage.setItem('ytdEarnings', 0);
+          localStorage.setItem('ytdTimeElapsed', Date.now() - startOfYear);
+        }
       } else {
         document.getElementById('inputSection').classList.remove('hidden');
         document.getElementById('earningsSection').classList.add('hidden');
@@ -200,8 +224,5 @@
       }
     });
   </script>
-  
-  
-  
 </body>
 </html>

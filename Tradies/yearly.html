@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hourly Earnings</title>
+  <title>Year-to-Date Earnings</title>
   <style>
     /* General Reset */
     * {
@@ -55,12 +55,12 @@
 </head>
 <body>
   <div class="container">
-    <!-- Hourly Earnings Screen -->
-    <div id="hourlyScreen">
+    <!-- Year-to-Date Earnings Screen -->
+    <div id="yearlyScreen">
       <div class="half-circle">
-        <div class="balance" id="hourlyBalance">$0.00</div>
+        <div class="balance" id="yearlyBalance">$0.00</div>
       </div>
-      <div class="earnings-label">Hourly Earnings</div>
+      <div class="earnings-label">Year-to-Date Earnings</div>
     </div>
   </div>
 
@@ -69,21 +69,13 @@
     let startTime;
     let touchStartX = 0;
     let touchEndX = 0;
-  
+
     document.addEventListener('DOMContentLoaded', () => {
-      const hourlyBalance = document.getElementById('hourlyBalance');
+      const yearlyBalance = document.getElementById('yearlyBalance');
 
-      // Function to update hourly earnings
-      function updateHourlyEarnings() {
-        const hourlyEarnings = parseFloat(localStorage.getItem('hourlyEarnings')) || 0;
-        hourlyBalance.textContent = `$${hourlyEarnings.toFixed(2)}`;
-      }
-
-      // Immediately show the last known hourly earnings
-      updateHourlyEarnings();
-
-      // Update earnings every second
-      setInterval(updateHourlyEarnings, 1000);
+      // Immediately show the last known YTD earnings
+      let ytdEarnings = parseFloat(localStorage.getItem('ytdEarnings')) || 0;
+      yearlyBalance.textContent = `$${ytdEarnings.toFixed(2)}`;
 
       // Swipe functionality
       document.addEventListener('touchstart', (e) => {
@@ -93,15 +85,10 @@
       document.addEventListener('touchend', (e) => {
         touchEndX = e.changedTouches[0].clientX;
         if (touchEndX - touchStartX > 50) {
-          window.location.href = 'index.html';
-        } else if (touchEndX - touchStartX < -50) {
-          window.location.href = 'yearly.html';
+          window.location.href = 'hourly.html';
         }
       });
     });
   </script>
 </body>
 </html>
-  
-  
-  
