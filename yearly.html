@@ -35,40 +35,36 @@
 
   <script type="module">
     import { updateEarnings } from "./earnings.js";
-  
+
     document.addEventListener("DOMContentLoaded", () => {
       if (!localStorage.getItem("setupComplete")) {
         window.location.href = "index.html";
       }
-  
+
       const hourlyRate = parseFloat(localStorage.getItem("hourlyRate")) || 0;
       const yearlyBalance = document.getElementById("yearlyBalance");
-  
+
       // Preload the balance immediately
       yearlyBalance.textContent = localStorage.getItem("preloadedBalance") || `$${parseFloat(localStorage.getItem("totalEarnings") || 0).toFixed(2)}`;
-  
+
       function updateYearly() {
         const earnings = updateEarnings(hourlyRate);
         yearlyBalance.textContent = `$${earnings.toFixed(2)}`;
       }
-  
+
       setInterval(updateYearly, 1000);
-  
+
       let touchStartX = 0;
       let touchEndX = 0;
-  
+
       document.addEventListener("touchstart", (e) => { touchStartX = e.touches[0].clientX; });
       document.addEventListener("touchend", (e) => {
         touchEndX = e.changedTouches[0].clientX;
         if (touchEndX - touchStartX > 50) {
-          // Store the balance in localStorage before navigating
-          localStorage.setItem("preloadedBalance", yearlyBalance.textContent);
           window.location.href = "weekly.html";
         }
       });
     });
   </script>
-  
-  
 </body>
 </html>
