@@ -1,33 +1,15 @@
-// earnings.js
+let totalEarnings = parseFloat(localStorage.getItem("totalEarnings")) || 0;
+let startTime = Date.now() - (parseFloat(localStorage.getItem("elapsedTime")) || 0);
 
-let interval;
-let startTime;
+function updateEarnings(hourlyRate) {
+  const elapsedSeconds = (Date.now() - startTime) / 1000;
+  totalEarnings = (hourlyRate / 3600) * elapsedSeconds;
 
-function startEarningsTracking(hourlyRate) {
-  clearInterval(interval);
+  // Save to localStorage
+  localStorage.setItem("totalEarnings", totalEarnings);
+  localStorage.setItem("elapsedTime", Date.now() - startTime);
 
-  // Immediately show the last known earnings before updates start
-  let totalEarnings = parseFloat(localStorage.getItem('totalEarnings')) || 0;
-
-  let timeElapsed = parseFloat(localStorage.getItem('timeElapsed')) || 0;
-  startTime = Date.now() - timeElapsed;
-
-  interval = setInterval(() => {
-    const elapsedMinutes = (Date.now() - startTime) / (1000 * 60);
-
-    // Calculate total earnings
-    totalEarnings = (hourlyRate / 60) * elapsedMinutes;
-
-    // Store updated earnings
-    localStorage.setItem('totalEarnings', totalEarnings);
-    localStorage.setItem('timeElapsed', Date.now() - startTime);
-  }, 1000);
+  return totalEarnings;
 }
 
-// Initialize earnings tracking if hourly rate is set
-document.addEventListener('DOMContentLoaded', () => {
-  const savedHourlyRate = localStorage.getItem('hourlyRate');
-  if (savedHourlyRate) {
-    startEarningsTracking(parseFloat(savedHourlyRate));
-  }
-});
+export { updateEarnings };

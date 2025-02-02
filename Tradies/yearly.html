@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="earnings.js"></script>
+  <script src="firebase-config.js" type="module"></script>
+  <script src="database.js" type="module"></script>
   <title>Yearly Earnings</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,14 +13,15 @@
       background-color: #f4f4f4;
       display: flex; justify-content: center; align-items: center;
       height: 100vh;
+      overflow: hidden;
     }
     .container { text-align: center; max-width: 400px; padding: 20px; }
     .half-circle {
       width: 200px; height: 100px;
-      background-color: #ffd700;
+      background-color: #90EE90;
       border-radius: 100px 100px 0 0;
       display: flex; justify-content: center; align-items: center;
-      border: 5px solid #daa520; margin: 0 auto 20px;
+      border: 5px solid #32CD32; margin: 0 auto 20px;
     }
     .balance { font-size: 32px; font-weight: bold; color: #333; }
     .earnings-label { font-size: 18px; color: #555; }
@@ -27,32 +29,46 @@
 </head>
 <body>
   <div class="container">
-    <div id="yearlyScreen">
-      <div class="half-circle"><div class="balance" id="yearlyBalance">$0.00</div></div>
-      <div class="earnings-label">Yearly Earnings</div>
-    </div>
+    <div class="half-circle"><div class="balance" id="yearlyBalance">$0.00</div></div>
+    <div class="earnings-label">Yearly Earnings</div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      if (!localStorage.getItem('setupComplete')) {
-        window.location.href = 'index.html';
+  <script type="module">
+    import { updateEarnings } from "./earnings.js";
+  
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!localStorage.getItem("setupComplete")) {
+        window.location.href = "index.html";
       }
-
-      const yearlyBalance = document.getElementById('yearlyBalance');
-      function updateYearlyEarnings() {
-        const totalEarnings = parseFloat(localStorage.getItem('totalEarnings')) || 0;
-        yearlyBalance.textContent = `$${totalEarnings.toFixed(2)}`;
+  
+      const hourlyRate = parseFloat(localStorage.getItem("hourlyRate")) || 0;
+      const yearlyBalance = document.getElementById("yearlyBalance");
+  
+      // Preload the balance immediately
+      yearlyBalance.textContent = localStorage.getItem("preloadedBalance") || `$${parseFloat(localStorage.getItem("totalEarnings") || 0).toFixed(2)}`;
+  
+      function updateYearly() {
+        const earnings = updateEarnings(hourlyRate);
+        yearlyBalance.textContent = `$${earnings.toFixed(2)}`;
       }
-      updateYearlyEarnings();
-      setInterval(updateYearlyEarnings, 1000);
-
-      document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
-      document.addEventListener('touchend', (e) => {
+  
+      setInterval(updateYearly, 1000);
+  
+      let touchStartX = 0;
+      let touchEndX = 0;
+  
+      document.addEventListener("touchstart", (e) => { touchStartX = e.touches[0].clientX; });
+      document.addEventListener("touchend", (e) => {
         touchEndX = e.changedTouches[0].clientX;
-        if (touchEndX - touchStartX > 50) { window.location.href = 'weekly.html'; }
+        if (touchEndX - touchStartX > 50) {
+          // Store the balance in localStorage before navigating
+          localStorage.setItem("preloadedBalance", yearlyBalance.textContent);
+          window.location.href = "weekly.html";
+        }
       });
     });
   </script>
+  
+  
 </body>
 </html>

@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="earnings.js"></script>
+  <script src="firebase-config.js" type="module"></script>
+  <script src="database.js" type="module"></script>
   <title>Earnings Tracker</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -37,29 +38,41 @@
     <button onclick="startTracking()">Start Tracking</button>
   </div>
 
-  <script>
-    function startTracking() {
-      const firstName = document.getElementById('firstName').value.trim();
-      const lastName = document.getElementById('lastName').value.trim();
-      const hourlyRate = parseFloat(document.getElementById('hourlyRate').value);
+  <script type="module">
+    import { saveUserDetails } from "./database.js";
+
+    async function startTracking() {
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const hourlyRate = parseFloat(document.getElementById("hourlyRate").value);
 
       if (!firstName || !lastName || isNaN(hourlyRate) || hourlyRate <= 0) {
         alert("Please enter valid details.");
         return;
       }
 
-      localStorage.setItem('firstName', firstName);
-      localStorage.setItem('lastName', lastName);
-      localStorage.setItem('hourlyRate', hourlyRate);
-      localStorage.setItem('setupComplete', 'true');
-      startEarningsTracking(hourlyRate);
+      try {
+        // Save to Firebase
+        await saveUserDetails(firstName, lastName, hourlyRate);
 
-      window.location.href = 'hourly.html';
+        // Save to localStorage
+        localStorage.setItem("setupComplete", "true");
+        localStorage.setItem("hourlyRate", hourlyRate);
+
+        // Redirect to hourly.html
+        window.location.href = "hourly.html";
+      } catch (error) {
+        console.error("Error saving user details:", error);
+        alert("An error occurred. Please try again.");
+      }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem('setupComplete')) {
-        window.location.href = 'hourly.html';
+    // Expose the function globally
+    window.startTracking = startTracking;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("setupComplete")) {
+        window.location.href = "hourly.html";
       }
     });
   </script>
