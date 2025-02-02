@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="earnings.js"></script>
-  <title>Hourly Earnings</title>
+  <title>Weekly Earnings</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -16,7 +16,8 @@
     .container { text-align: center; max-width: 400px; padding: 20px; }
     .half-circle {
       width: 200px; height: 100px;
-      background-color: #ffd700; border-radius: 100px 100px 0 0;
+      background-color: #ffd700;
+      border-radius: 100px 100px 0 0;
       display: flex; justify-content: center; align-items: center;
       border: 5px solid #daa520; margin: 0 auto 20px;
     }
@@ -26,9 +27,9 @@
 </head>
 <body>
   <div class="container">
-    <div id="hourlyScreen">
-      <div class="half-circle"><div class="balance" id="hourlyBalance">$0.00</div></div>
-      <div class="earnings-label">Hourly Earnings</div>
+    <div id="weeklyScreen">
+      <div class="half-circle"><div class="balance" id="weeklyBalance">$0.00</div></div>
+      <div class="earnings-label">Weekly Earnings</div>
     </div>
   </div>
 
@@ -38,18 +39,19 @@
         window.location.href = 'index.html';
       }
 
-      const hourlyBalance = document.getElementById('hourlyBalance');
-      function updateHourlyEarnings() {
+      const weeklyBalance = document.getElementById('weeklyBalance');
+      function updateWeeklyEarnings() {
         const totalEarnings = parseFloat(localStorage.getItem('totalEarnings')) || 0;
-        hourlyBalance.textContent = `$${totalEarnings.toFixed(2)}`;
+        weeklyBalance.textContent = `$${totalEarnings.toFixed(2)}`;
       }
-      updateHourlyEarnings();
-      setInterval(updateHourlyEarnings, 1000);
+      updateWeeklyEarnings();
+      setInterval(updateWeeklyEarnings, 1000);
 
       document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
       document.addEventListener('touchend', (e) => {
         touchEndX = e.changedTouches[0].clientX;
-        if (touchEndX - touchStartX < -50) { window.location.href = 'weekly.html'; }
+        if (touchEndX - touchStartX < -50) { window.location.href = 'yearly.html'; }
+        else if (touchEndX - touchStartX > 50) { window.location.href = 'hourly.html'; }
       });
     });
   </script>

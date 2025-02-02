@@ -3,90 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Year-to-Date Earnings</title>
+  <script src="earnings.js"></script>
+  <title>Yearly Earnings</title>
   <style>
-    /* General Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      display: flex; justify-content: center; align-items: center;
       height: 100vh;
-      margin: 0;
     }
-
-    .container {
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
-    }
-
+    .container { text-align: center; max-width: 400px; padding: 20px; }
     .half-circle {
-      width: 200px;
-      height: 100px;
+      width: 200px; height: 100px;
       background-color: #ffd700;
       border-radius: 100px 100px 0 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 5px solid #daa520;
-      margin: 0 auto 20px;
+      display: flex; justify-content: center; align-items: center;
+      border: 5px solid #daa520; margin: 0 auto 20px;
     }
-
-    .balance {
-      font-size: 32px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .earnings-label {
-      font-size: 18px;
-      color: #555;
-    }
+    .balance { font-size: 32px; font-weight: bold; color: #333; }
+    .earnings-label { font-size: 18px; color: #555; }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Year-to-Date Earnings Screen -->
     <div id="yearlyScreen">
-      <div class="half-circle">
-        <div class="balance" id="yearlyBalance">$0.00</div>
-      </div>
-      <div class="earnings-label">Year-to-Date Earnings</div>
+      <div class="half-circle"><div class="balance" id="yearlyBalance">$0.00</div></div>
+      <div class="earnings-label">Yearly Earnings</div>
     </div>
   </div>
 
   <script>
-    let interval;
-    let startTime;
-    let touchStartX = 0;
-    let touchEndX = 0;
-
     document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('setupComplete')) {
+        window.location.href = 'index.html';
+      }
+
       const yearlyBalance = document.getElementById('yearlyBalance');
+      function updateYearlyEarnings() {
+        const totalEarnings = parseFloat(localStorage.getItem('totalEarnings')) || 0;
+        yearlyBalance.textContent = `$${totalEarnings.toFixed(2)}`;
+      }
+      updateYearlyEarnings();
+      setInterval(updateYearlyEarnings, 1000);
 
-      // Immediately show the last known YTD earnings
-      let ytdEarnings = parseFloat(localStorage.getItem('ytdEarnings')) || 0;
-      yearlyBalance.textContent = `$${ytdEarnings.toFixed(2)}`;
-
-      // Swipe functionality
-      document.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
-      });
-
+      document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
       document.addEventListener('touchend', (e) => {
         touchEndX = e.changedTouches[0].clientX;
-        if (touchEndX - touchStartX > 50) {
-          window.location.href = 'hourly.html';
-        }
+        if (touchEndX - touchStartX > 50) { window.location.href = 'weekly.html'; }
       });
     });
   </script>

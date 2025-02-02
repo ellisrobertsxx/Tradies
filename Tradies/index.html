@@ -3,223 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="earnings.js"></script>
   <title>Earnings Tracker</title>
   <style>
-    /* General Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      display: flex; justify-content: center; align-items: center;
       height: 100vh;
-      margin: 0;
     }
-
-    .container {
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 10px;
-      color: #555;
-    }
-
+    .container { text-align: center; max-width: 400px; padding: 20px; }
     input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
+      width: 100%; padding: 10px; margin-bottom: 15px;
+      border: 1px solid #ccc; border-radius: 8px; font-size: 16px;
     }
-
     button {
-      padding: 12px 24px;
-      background-color: #28a745;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
+      padding: 12px 24px; background-color: #28a745; color: #fff;
+      border: none; border-radius: 8px; font-size: 16px; cursor: pointer;
     }
-
-    button:hover {
-      background-color: #218838;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    /* Earnings Display Section */
-    #earningsSection {
-      width: 100%;
-      text-align: center;
-    }
-
-    .half-circle {
-      width: 200px;
-      height: 100px;
-      background-color: #ffd700;
-      border-radius: 100px 100px 0 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 5px solid #daa520;
-      margin: 0 auto 20px;
-    }
-
-    .balance {
-      font-size: 32px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .earnings-label {
-      font-size: 18px;
-      color: #555;
-    }
+    button:hover { background-color: #218838; }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Input Section -->
-    <div id="inputSection">
-      <h1>Earnings Tracker</h1>
-      <label for="firstName">First Name:</label>
-      <input type="text" id="firstName" placeholder="Enter your first name">
-      
-      <label for="lastName">Last Name:</label>
-      <input type="text" id="lastName" placeholder="Enter your last name">
-      
-      <label for="hourlyRate">Hourly Rate ($):</label>
-      <input type="number" id="hourlyRate" placeholder="Enter your hourly rate">
-      
-      <button onclick="startTracking()">Start Tracking</button>
-    </div>
-
-    <!-- Earnings Display Section -->
-    <div id="earningsSection" class="hidden">
-      <!-- Weekly Earnings Screen -->
-      <div id="weeklyScreen">
-        <div class="half-circle">
-          <div class="balance" id="weeklyBalance">$0.00</div>
-        </div>
-        <div class="earnings-label">Weekly Earnings</div>
-      </div>
-    </div>
+    <h1>Earnings Tracker</h1>
+    <label for="firstName">First Name:</label>
+    <input type="text" id="firstName" placeholder="Enter your first name">
+    <label for="lastName">Last Name:</label>
+    <input type="text" id="lastName" placeholder="Enter your last name">
+    <label for="hourlyRate">Hourly Rate ($):</label>
+    <input type="number" id="hourlyRate" placeholder="Enter your hourly rate">
+    <button onclick="startTracking()">Start Tracking</button>
   </div>
 
   <script>
-    let interval;
-    let startTime;
-  
     function startTracking() {
-      const firstName = document.getElementById('firstName').value;
-      const lastName = document.getElementById('lastName').value;
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
       const hourlyRate = parseFloat(document.getElementById('hourlyRate').value);
-  
-      if (!firstName || !lastName || isNaN(hourlyRate)) {
-        alert('Please fill in all fields correctly.');
+
+      if (!firstName || !lastName || isNaN(hourlyRate) || hourlyRate <= 0) {
+        alert("Please enter valid details.");
         return;
       }
-  
-      // Save user details
+
       localStorage.setItem('firstName', firstName);
       localStorage.setItem('lastName', lastName);
       localStorage.setItem('hourlyRate', hourlyRate);
-  
-      initializeEarningsTracking(hourlyRate);
-    }
-  
-    function initializeEarningsTracking(hourlyRate) {
-      document.getElementById('inputSection').classList.add('hidden');
-      document.getElementById('earningsSection').classList.remove('hidden');
+      localStorage.setItem('setupComplete', 'true');
+      startEarningsTracking(hourlyRate);
 
-      clearInterval(interval);
-
-      // Initialize YTD earnings if not already set
-      if (!localStorage.getItem('ytdEarnings')) {
-        const now = new Date();
-        const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
-        localStorage.setItem('ytdEarnings', 0);
-        localStorage.setItem('ytdTimeElapsed', Date.now() - startOfYear);
-      }
-
-      // Immediately show the last known earnings before updates start
-      let totalEarnings = parseFloat(localStorage.getItem('totalEarnings')) || 0;
-      document.getElementById('weeklyBalance').textContent = `$${totalEarnings.toFixed(2)}`;
-
-      let timeElapsed = parseFloat(localStorage.getItem('timeElapsed')) || 0;
-      startTime = Date.now() - timeElapsed;
-
-      interval = setInterval(() => {
-        const elapsedMinutes = (Date.now() - startTime) / (1000 * 60);
-
-        // Calculate all earnings
-        totalEarnings = (hourlyRate / 60) * elapsedMinutes;
-        const hourlyEarnings = totalEarnings;
-        // Update the YTD calculation in the setInterval function in index.html
-        const ytdEarnings = (hourlyRate / 60) * ((Date.now() - new Date(new Date().getFullYear(), 0, 1).getTime()) / (1000 * 60));
-
-        // Store updated earnings
-        localStorage.setItem('totalEarnings', totalEarnings);
-        localStorage.setItem('hourlyEarnings', hourlyEarnings);
-        localStorage.setItem('ytdEarnings', ytdEarnings);
-        localStorage.setItem('timeElapsed', Date.now() - startTime);
-
-        // Update the UI on the current page
-        document.getElementById('weeklyBalance').textContent = `$${totalEarnings.toFixed(2)}`;
-      }, 1000);
+      window.location.href = 'hourly.html';
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      const savedFirstName = localStorage.getItem('firstName');
-      const savedLastName = localStorage.getItem('lastName');
-      const savedHourlyRate = localStorage.getItem('hourlyRate');
-  
-      if (savedFirstName && savedLastName && savedHourlyRate) {
-        document.getElementById('inputSection').classList.add('hidden');
-        document.getElementById('earningsSection').classList.remove('hidden');
-        initializeEarningsTracking(parseFloat(savedHourlyRate));
-
-        // Initialize YTD earnings if not already set
-        if (!localStorage.getItem('ytdEarnings')) {
-          const now = new Date();
-          const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
-          localStorage.setItem('ytdEarnings', 0);
-          localStorage.setItem('ytdTimeElapsed', Date.now() - startOfYear);
-        }
-      } else {
-        document.getElementById('inputSection').classList.remove('hidden');
-        document.getElementById('earningsSection').classList.add('hidden');
-      }
-    });
-  
-    // Swipe functionality to go to Hourly Earnings
-    document.addEventListener('touchstart', (e) => {
-      touchStartX = e.touches[0].clientX;
-    });
-  
-    document.addEventListener('touchend', (e) => {
-      touchEndX = e.changedTouches[0].clientX;
-      if (touchEndX - touchStartX < -50) {
+      if (localStorage.getItem('setupComplete')) {
         window.location.href = 'hourly.html';
       }
     });
