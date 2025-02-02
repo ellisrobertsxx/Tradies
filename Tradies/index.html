@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="firebase-config.js" type="module"></script>
+  <script src="database.js" type="module"></script>
+  <title>Earnings Tracker</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh;
+    }
+    .container { text-align: center; max-width: 400px; padding: 20px; }
+    input {
+      width: 100%; padding: 10px; margin-bottom: 15px;
+      border: 1px solid #ccc; border-radius: 8px; font-size: 16px;
+    }
+    button {
+      padding: 12px 24px; background-color: #28a745; color: #fff;
+      border: none; border-radius: 8px; font-size: 16px; cursor: pointer;
+    }
+    button:hover { background-color: #218838; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Earnings Tracker</h1>
+    <label for="firstName">First Name:</label>
+    <input type="text" id="firstName" placeholder="Enter your first name">
+    <label for="lastName">Last Name:</label>
+    <input type="text" id="lastName" placeholder="Enter your last name">
+    <label for="hourlyRate">Hourly Rate ($):</label>
+    <input type="number" id="hourlyRate" placeholder="Enter your hourly rate">
+    <button onclick="startTracking()">Start Tracking</button>
+  </div>
+
+  <script type="module">
+    import { saveUserDetails } from "./database.js";
+
+    async function startTracking() {
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const hourlyRate = parseFloat(document.getElementById("hourlyRate").value);
+
+      if (!firstName || !lastName || isNaN(hourlyRate) || hourlyRate <= 0) {
+        alert("Please enter valid details.");
+        return;
+      }
+
+      try {
+        // Save to Firebase
+        await saveUserDetails(firstName, lastName, hourlyRate);
+
+        // Save to localStorage
+        localStorage.setItem("setupComplete", "true");
+        localStorage.setItem("hourlyRate", hourlyRate);
+
+        // Redirect to hourly.html
+        window.location.href = "hourly.html";
+      } catch (error) {
+        console.error("Error saving user details:", error);
+        alert("An error occurred. Please try again.");
+      }
+    }
+
+    // Expose the function globally
+    window.startTracking = startTracking;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("setupComplete")) {
+        window.location.href = "hourly.html";
+      }
+    });
+  </script>
+</body>
+</html>
