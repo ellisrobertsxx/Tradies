@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="firebase-config.js" type="module"></script>
+  <script src="database.js" type="module"></script>
+  <script src="auth.js" type="module"></script>
+  <title>Register</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      text-align: center;
+      max-width: 400px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .workdays-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .workday-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Register</h1>
+    <input type="text" id="firstName" placeholder="First Name">
+    <input type="text" id="lastName" placeholder="Last Name">
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <input type="number" id="hourlyRate" placeholder="Hourly Rate ($)">
+    <input type="number" id="hoursPerDay" placeholder="Hours Per Day">
+    
+    <label>Select Work Days:</label>
+    <div class="workdays-container">
+      <label class="workday-label"><input type="checkbox" value="Monday"> Monday</label>
+      <label class="workday-label"><input type="checkbox" value="Tuesday"> Tuesday</label>
+      <label class="workday-label"><input type="checkbox" value="Wednesday"> Wednesday</label>
+      <label class="workday-label"><input type="checkbox" value="Thursday"> Thursday</label>
+      <label class="workday-label"><input type="checkbox" value="Friday"> Friday</label>
+      <label class="workday-label"><input type="checkbox" value="Saturday"> Saturday</label>
+      <label class="workday-label"><input type="checkbox" value="Sunday"> Sunday</label>
+    </div>
+    
+    <button onclick="registerUser()">Register</button>
+  </div>
+
+  <script>
+    function registerUser() {
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const hourlyRate = document.getElementById('hourlyRate').value;
+      const hoursPerDay = document.getElementById('hoursPerDay').value;
+      const workDays = Array.from(document.querySelectorAll('.workdays-container input:checked')).map(input => input.value);
+      
+      if (!firstName || !lastName || !username || !password || !hourlyRate || !hoursPerDay || workDays.length === 0) {
+        alert("Please fill in all fields and select work days.");
+        return;
+      }
+      
+      // Save user data logic here (to be implemented with Firebase)
+      console.log("Registering user:", { firstName, lastName, username, password, hourlyRate, hoursPerDay, workDays });
+    }
+  </script>
+</body>
+</html>

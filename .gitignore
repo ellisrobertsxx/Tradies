@@ -13,5 +13,5 @@ desktop.ini
 # Ignore logs
 *.log
 
-# Ignore Firebase keys (if needed)
-firebase-config.js
+# Do not ignore firebase-config.js
+!firebase-config.js
