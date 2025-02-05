@@ -1,0 +1,51 @@
+{
+  "users": {
+    "BmGeueoFbldYMG7rvg3paitqEwC3": {
+      "email": "ellisrob1998@hotmail.co.uk",
+      "firstName": "dkwadkjaf",
+      "hourlyRate": 85,
+      "hoursPerDay": 8,
+      "lastName": "skdvnlsv",
+      "workDays": [
+        "Wednesday"
+      ]
+    },
+    "ellisrobertsxx": {
+      "firstName": "Ellis",
+      "hourlyRate": 6,
+      "hoursPerDay": 6,
+      "lastName": "Roberts",
+      "password": "dddddd",
+      "username": "ellisrobertsxx",
+      "workDays": [
+        "Thursday"
+      ]
+    },
+    "ellisrobertsxxxxxx": {
+      "firstName": "Ellisssssss",
+      "hourlyRate": 6,
+      "hoursPerDay": 6,
+      "lastName": "Roberts",
+      "password": "dddddd",
+      "username": "ellisrobertsxxxxxx",
+      "workDays": [
+        "Thursday"
+      ]
+    },
+    "kRwA0UYZJsXHsJpQ8ahNwHvUMgB3": {
+      "email": "ellisrob1998@gmail.com",
+      "firstName": "Ellis",
+      "hourlyRate": 49,
+      "hoursPerDay": 8,
+      "lastName": "Roberts",
+      "workDays": [
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ]
+    }
+  }
+}

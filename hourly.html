@@ -4,66 +4,63 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="firebase-config.js" type="module"></script>
-  <script src="database.js" type="module"></script>
-  <title>Hourly Earnings</title>
+  <title>Hourly Tracker</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
-      display: flex; justify-content: center; align-items: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
-      overflow: hidden;
     }
-    .container { text-align: center; max-width: 400px; padding: 20px; }
-    .half-circle {
-      width: 200px; height: 100px;
-      background-color: #ffd700;
-      border-radius: 100px 100px 0 0;
-      display: flex; justify-content: center; align-items: center;
-      border: 5px solid #daa520; margin: 0 auto 20px;
+    .container {
+      text-align: center;
+      max-width: 400px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-    .balance { font-size: 32px; font-weight: bold; color: #333; }
-    .earnings-label { font-size: 18px; color: #555; }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .balance {
+      font-size: 24px;
+      color: green;
+      margin: 15px 0;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="half-circle"><div class="balance" id="hourlyBalance">$0.00</div></div>
-    <div class="earnings-label">Hourly Earnings</div>
+    <h1>Hourly Tracker</h1>
+    <p>Your real-time earnings balance:</p>
+    <div class="balance" id="balanceDisplay">£0.00</div>
   </div>
 
   <script type="module">
-    import { updateEarnings } from "./earnings.js";
+    import { auth } from "./firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+    import { fetchUserDetails, calculateEarnings } from "./earnings.js";
 
-    document.addEventListener("DOMContentLoaded", () => {
-      if (!localStorage.getItem("setupComplete")) {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        alert("You must be logged in to access this page.");
         window.location.href = "index.html";
-      }
+      } else {
+        console.log(`User is logged in: ${user.email}`);
+        const userData = await fetchUserDetails(user.uid);
 
-      const hourlyRate = parseFloat(localStorage.getItem("hourlyRate")) || 0;
-      const hourlyBalance = document.getElementById("hourlyBalance");
-
-      // Preload the balance immediately
-      hourlyBalance.textContent = `$${parseFloat(localStorage.getItem("totalEarnings") || 0).toFixed(2)}`;
-
-      function updateHourly() {
-        const earnings = updateEarnings(hourlyRate);
-        hourlyBalance.textContent = `$${earnings.toFixed(2)}`;
-      }
-
-      setInterval(updateHourly, 1000);
-
-      let touchStartX = 0;
-      let touchEndX = 0;
-
-      document.addEventListener("touchstart", (e) => { touchStartX = e.touches[0].clientX; });
-      document.addEventListener("touchend", (e) => {
-        touchEndX = e.changedTouches[0].clientX;
-        if (touchEndX - touchStartX < -50) {
-          window.location.href = "weekly.html";
+        if (userData) {
+          const { hourlyRate, hoursPerDay, workDays } = userData;
+          calculateEarnings(hourlyRate, hoursPerDay, workDays);
+        } else {
+          alert("Error fetching user data. Please try again.");
+          window.location.href = "index.html";
         }
-      });
+      }
     });
   </script>
 </body>

@@ -4,15 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="firebase-config.js" type="module"></script>
-  <script src="database.js" type="module"></script>
-  <script src="auth.js" type="module"></script>
-  <title>Welcome</title>
+  <title>Login</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
@@ -29,10 +22,6 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-    h1 {
-      margin-bottom: 20px;
-      color: #333;
-    }
     input {
       width: 100%;
       padding: 10px;
@@ -45,7 +34,7 @@
       width: 100%;
       padding: 12px;
       background-color: #28a745;
-      color: #fff;
+      color: white;
       border: none;
       border-radius: 8px;
       font-size: 16px;
@@ -55,10 +44,11 @@
       background-color: #218838;
     }
     .register-link {
-      margin-top: 15px;
+      margin-top: 10px;
       display: block;
       color: #007bff;
       text-decoration: none;
+      font-size: 14px;
     }
     .register-link:hover {
       text-decoration: underline;
@@ -67,26 +57,48 @@
 </head>
 <body>
   <div class="container">
-    <h1>Welcome</h1>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="loginUser()">Login</button>
+    <h1>Login</h1>
+    <input type="email" id="username" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button id="loginButton">Login</button>
     <a href="register.html" class="register-link">Don't have an account? Register here</a>
   </div>
 
-  <script>
-    function loginUser() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      
-      if (!username || !password) {
-        alert("Please enter both username and password.");
+  <script type="module">
+    import { auth } from "./firebase-config.js";
+    import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+
+    console.log("Firebase authentication module loaded.");
+
+    document.getElementById("loginButton").addEventListener("click", async () => {
+      const email = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      console.log("Login button clicked.");
+      console.log("Email entered:", email);
+
+      if (!email || !password) {
+        alert("Please fill in all fields.");
+        console.error("Missing email or password.");
         return;
       }
-      
-      // Authentication logic here (to be implemented with Firebase Auth)
-      console.log("Logging in with", username, password);
-    }
+
+      try {
+        console.log("Setting session persistence...");
+        await setPersistence(auth, browserLocalPersistence);
+
+        console.log("Attempting login...");
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        console.log("Login successful:", user.email);
+        alert("Login successful! Redirecting...");
+        window.location.href = "hourly.html";
+      } catch (error) {
+        console.error("Error logging in:", error.message);
+        alert("Invalid email or password. Please try again.");
+      }
+    });
   </script>
 </body>
 </html>
