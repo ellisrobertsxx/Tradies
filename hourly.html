@@ -4,41 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="firebase-config.js" type="module"></script>
+  <script src="earnings.js" type="module"></script>
   <title>Hourly Tracker</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
+      background-color: #f9f9f9;
       text-align: center;
-      max-width: 400px;
       padding: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-    h1 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-    .balance {
-      font-size: 24px;
-      color: green;
-      margin: 15px 0;
+    #balanceDisplay {
+      font-size: 2em;
+      margin: 20px 0;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Hourly Tracker</h1>
-    <p>Your real-time earnings balance:</p>
-    <div class="balance" id="balanceDisplay">£0.00</div>
-  </div>
+  <h1>Hourly Earnings Tracker</h1>
+  <div id="balanceDisplay">£0.00</div>
 
   <script type="module">
     import { auth } from "./firebase-config.js";
@@ -46,20 +29,21 @@
     import { fetchUserDetails, calculateEarnings } from "./earnings.js";
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        alert("You must be logged in to access this page.");
-        window.location.href = "index.html";
-      } else {
-        console.log(`User is logged in: ${user.email}`);
-        const userData = await fetchUserDetails(user.uid);
-
-        if (userData) {
-          const { hourlyRate, hoursPerDay, workDays } = userData;
-          calculateEarnings(hourlyRate, hoursPerDay, workDays);
-        } else {
-          alert("Error fetching user data. Please try again.");
-          window.location.href = "index.html";
+      if (user) {
+        try {
+          const userData = await fetchUserDetails(user.uid);
+          if (userData) {
+            const { hourlyRate, workDays, startTime, endTime } = userData;
+            calculateEarnings(hourlyRate, workDays, startTime, endTime);
+          } else {
+            document.getElementById("balanceDisplay").textContent = "Error: Could not fetch user data.";
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          document.getElementById("balanceDisplay").textContent = "Error: Could not fetch user data.";
         }
+      } else {
+        window.location.href = "index.html"; // Redirect to login page if not authenticated
       }
     });
   </script>

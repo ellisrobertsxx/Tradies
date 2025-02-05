@@ -18,34 +18,47 @@ export async function fetchUserDetails(userId) {
   }
 }
 
-// Calculate earnings in real-time
-export function calculateEarnings(hourlyRate, hoursPerDay, workDays) {
+// Calculate earnings in real-time based on work hours
+export function calculateEarnings(hourlyRate, workDays, startTime, endTime) {
   const balanceDisplay = document.getElementById("balanceDisplay");
-  const totalSecondsPerDay = hoursPerDay * 3600;
-  const earningsPerSecond = hourlyRate / 3600;
 
-  // Ensure workDays is an array
-  if (!Array.isArray(workDays)) {
-    console.error("workDays is not an array:", workDays);
-    balanceDisplay.textContent = "Error: Invalid workdays data.";
+  // Ensure startTime and endTime are valid
+  if (!startTime || !endTime) {
+    balanceDisplay.textContent = "Error: Invalid work hours.";
     return;
   }
 
-  // Get the current day in the format of the saved workDays array
   const currentDay = new Date().toLocaleString("en-GB", { weekday: "long" });
 
-  // Normalize workDays to ensure it matches the format of currentDay
-  const normalizedWorkDays = workDays.map(day => day.trim());
-
-  // Check if the current day is a working day
-  if (!normalizedWorkDays.includes(currentDay)) {
+  // Check if today is a working day
+  if (!workDays.includes(currentDay)) {
     balanceDisplay.textContent = "£0.00 (Not a working day)";
     return;
   }
 
-  let elapsedSeconds = 0;
+  const now = new Date();
+  const [startHour, startMinute] = startTime.split(":").map(Number);
+  const [endHour, endMinute] = endTime.split(":").map(Number);
+
+  const start = new Date();
+  const end = new Date();
+  start.setHours(startHour, startMinute, 0, 0);
+  end.setHours(endHour, endMinute, 0, 0);
+
+  // If outside working hours, show the balance as 0
+  if (now < start || now > end) {
+    balanceDisplay.textContent = "£0.00 (Outside working hours)";
+    return;
+  }
+
+  const totalSeconds = (end - start) / 1000;
+  const earningsPerSecond = hourlyRate / totalSeconds;
+  let elapsedSeconds = Math.floor((now - start) / 1000);
+
   const interval = setInterval(() => {
-    if (elapsedSeconds >= totalSecondsPerDay) {
+    const currentTime = new Date();
+
+    if (currentTime >= end) {
       clearInterval(interval);
       return;
     }
