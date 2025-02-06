@@ -4,68 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="firebase-config.js" type="module"></script>
-  <script src="database.js" type="module"></script>
-  <title>Weekly Earnings</title>
+  <script src="earnings.js" type="module"></script>
+  <title>Weekly Tracker</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      display: flex; justify-content: center; align-items: center;
-      height: 100vh;
-      overflow: hidden;
+      background-color: #f9f9f9;
+      text-align: center;
+      padding: 20px;
     }
-    .container { text-align: center; max-width: 400px; padding: 20px; }
-    .half-circle {
-      width: 200px; height: 100px;
-      background-color: #87CEFA;
-      border-radius: 100px 100px 0 0;
-      display: flex; justify-content: center; align-items: center;
-      border: 5px solid #4682B4; margin: 0 auto 20px;
+    #weeklyBalanceDisplay {
+      font-size: 2em;
+      margin: 20px 0;
     }
-    .balance { font-size: 32px; font-weight: bold; color: #333; }
-    .earnings-label { font-size: 18px; color: #555; }
+    #weeklySummary {
+      font-size: 1.5em;
+      color: #555;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="half-circle"><div class="balance" id="weeklyBalance">$0.00</div></div>
-    <div class="earnings-label">Weekly Earnings</div>
+  <h1>Weekly Earnings Tracker</h1>
+  <div id="weeklyBalanceDisplay">£0.00</div>
+  <div id="weeklySummary"></div>
+
+  <div class="navigation">
+    <button onclick="location.href='hourly.html'">Hourly</button>
+    <button onclick="location.href='monthly.html'">Monthly</button>
+    <button onclick="location.href='yearly.html'">Yearly</button>
   </div>
 
   <script type="module">
-    import { updateEarnings } from "./earnings.js";
+    import { auth } from "./firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+    import { fetchUserDetails, calculateWeeklyEarnings } from "./earnings.js";
 
-    document.addEventListener("DOMContentLoaded", () => {
-      if (!localStorage.getItem("setupComplete")) {
-        window.location.href = "index.html";
-      }
-
-      const hourlyRate = parseFloat(localStorage.getItem("hourlyRate")) || 0;
-      const weeklyBalance = document.getElementById("weeklyBalance");
-
-      // Preload the balance immediately
-      weeklyBalance.textContent = localStorage.getItem("preloadedBalance") || `$${parseFloat(localStorage.getItem("totalEarnings") || 0).toFixed(2)}`;
-
-      function updateWeekly() {
-        const earnings = updateEarnings(hourlyRate);
-        weeklyBalance.textContent = `$${earnings.toFixed(2)}`;
-      }
-
-      setInterval(updateWeekly, 1000);
-
-      let touchStartX = 0;
-      let touchEndX = 0;
-
-      document.addEventListener("touchstart", (e) => { touchStartX = e.touches[0].clientX; });
-      document.addEventListener("touchend", (e) => {
-        touchEndX = e.changedTouches[0].clientX;
-        if (touchEndX - touchStartX < -50) {
-          window.location.href = "yearly.html";
-        } else if (touchEndX - touchStartX > 50) {
-          window.location.href = "hourly.html";
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userData = await fetchUserDetails(user.uid);
+          if (userData) {
+            const { hourlyRate, workDays, startTime, endTime } = userData;
+            calculateWeeklyEarnings(hourlyRate, workDays, startTime, endTime);
+          } else {
+            document.getElementById("weeklyBalanceDisplay").textContent = "Error: Could not fetch user data.";
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          document.getElementById("weeklyBalanceDisplay").textContent = "Error: Could not fetch user data.";
         }
-      });
+      } else {
+        window.location.href = "index.html"; // Redirect to login page if not authenticated
+      }
     });
   </script>
 </body>

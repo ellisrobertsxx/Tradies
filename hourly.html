@@ -23,6 +23,12 @@
   <h1>Hourly Earnings Tracker</h1>
   <div id="balanceDisplay">£0.00</div>
 
+  <div class="navigation">
+    <button onclick="location.href='hourly.html'">Hourly</button>
+    <button onclick="location.href='monthly.html'">Monthly</button>
+    <button onclick="location.href='yearly.html'">Yearly</button>
+  </div>
+
   <script type="module">
     import { auth } from "./firebase-config.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";

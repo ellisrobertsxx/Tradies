@@ -36,6 +36,19 @@
       border-radius: 8px;
       font-size: 16px;
     }
+    .workdays-container {
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 5px;
+      align-items: center;
+      text-align: left;
+      margin-bottom: 15px;
+    }
+    .workdays-container label {
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+    }
     button {
       width: 100%;
       padding: 12px;
@@ -98,13 +111,9 @@
       }
 
       try {
-        // Register the user with Firebase Authentication
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-
-        // Save additional user details in the Realtime Database
         await saveUserDetails(user.uid, firstName, lastName, hourlyRate, workHours, workDays, startTime, endTime);
-
         alert("Registration successful! Redirecting to tracker...");
         window.location.href = "hourly.html";
       } catch (error) {
