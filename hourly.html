@@ -25,9 +25,31 @@
 
   <div class="navigation">
     <button onclick="location.href='hourly.html'">Hourly</button>
+    <button onclick="location.href='weekly.html'">Weekly</button>
     <button onclick="location.href='monthly.html'">Monthly</button>
     <button onclick="location.href='yearly.html'">Yearly</button>
   </div>
+
+
+  <style>
+      body {
+    font-family: Arial, sans-serif;
+    background-image: url('assets/images/background01.png'); /* Ensure the correct path */
+    background-size: cover;
+    background-position: top center; /* Keep the pattern at the top */
+    background-repeat: no-repeat;
+    height: 100vh; /* Full viewport height */
+    margin: 0; /* Remove default margins */
+    padding: 0; /* Remove default paddings */
+    display: flex; /* Use flexbox */
+    flex-direction: column; /* Stack items vertically */
+    justify-content: center; /* Center items vertically */
+    align-items: center; /* Center items horizontally */
+    text-align: center; /* Ensure text is centered */
+}
+
+
+  </style>
 
   <script type="module">
     import { auth } from "./firebase-config.js";

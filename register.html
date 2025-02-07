@@ -36,19 +36,6 @@
       border-radius: 8px;
       font-size: 16px;
     }
-    .workdays-container {
-      display: grid;
-      grid-template-columns: auto auto;
-      gap: 5px;
-      align-items: center;
-      text-align: left;
-      margin-bottom: 15px;
-    }
-    .workdays-container label {
-      display: flex;
-      align-items: center;
-      font-size: 16px;
-    }
     button {
       width: 100%;
       padding: 12px;
@@ -75,15 +62,14 @@
     <input type="number" id="workHours" placeholder="Hours Per Day" min="0" required>
     <input type="time" id="startTime" placeholder="Start Time" required>
     <input type="time" id="endTime" placeholder="End Time" required>
-    <div class="workdays-container">
-      <label><input type="checkbox" value="Monday"> Monday</label>
-      <label><input type="checkbox" value="Tuesday"> Tuesday</label>
-      <label><input type="checkbox" value="Wednesday"> Wednesday</label>
-      <label><input type="checkbox" value="Thursday"> Thursday</label>
-      <label><input type="checkbox" value="Friday"> Friday</label>
-      <label><input type="checkbox" value="Saturday"> Saturday</label>
-      <label><input type="checkbox" value="Sunday"> Sunday</label>
-    </div>
+
+    <!-- Date Range Picker for Work Schedule -->
+    <label>Start Date:</label>
+    <input type="date" id="startDate" required>
+    
+    <label>End Date:</label>
+    <input type="date" id="endDate" required>
+
     <button id="registerButton">Register</button>
   </div>
 
@@ -101,19 +87,22 @@
       const workHours = parseFloat(document.getElementById("workHours").value);
       const startTime = document.getElementById("startTime").value;
       const endTime = document.getElementById("endTime").value;
-      const workDays = Array.from(document.querySelectorAll(".workdays-container input:checked")).map(
-        (input) => input.value.trim()
-      );
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
 
-      if (!firstName || !lastName || !email || !password || !hourlyRate || !workHours || !startTime || !endTime || workDays.length === 0) {
-        alert("Please fill in all fields and select at least one workday.");
+      if (!firstName || !lastName || !email || !password || !hourlyRate || !workHours || !startTime || !endTime || !startDate || !endDate) {
+        alert("Please fill in all fields.");
         return;
       }
 
       try {
+        // Register the user with Firebase Authentication
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        await saveUserDetails(user.uid, firstName, lastName, hourlyRate, workHours, workDays, startTime, endTime);
+
+        // Save additional user details in Firebase
+        await saveUserDetails(user.uid, firstName, lastName, hourlyRate, workHours, startTime, endTime, startDate, endDate);
+
         alert("Registration successful! Redirecting to tracker...");
         window.location.href = "hourly.html";
       } catch (error) {
